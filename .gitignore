@@ -1,0 +1,53 @@
+# Python / Django
+__pycache__/
+*.py[cod]
+*.pyo
+*.pyd
+*.so
+.venv/
+venv/
+env/
+ENV/
+
+# Local environment
+.env
+.env.*
+!.env.example
+
+# Django runtime artifacts
+*.log
+*.pot
+*.sqlite3
+*.sqlite3-journal
+*.db
+*.db-journal
+staticfiles/
+media/
+
+# Local generated/development artifacts
+debug-*.pdf
+debug-*.png
+debug-*.jpg
+debug-*.jpeg
+generated-*.pdf
+generated-*.png
+generated-*.jpg
+generated-*.jpeg
+test-generated.pdf
+*.bak
+*.tmp
+
+# OS / editor
+.DS_Store
+Thumbs.db
+.vscode/
+.idea/
+
+# Python packaging
+build/
+dist/
+*.egg-info/
+
+# Temporary files
+*.swp
+*.tmp

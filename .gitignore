@@ -25,6 +25,7 @@ staticfiles/
 media/
 
 # Local generated/development artifacts
+templates/Devis_OT_Metal_Plus.pdf
 debug-*.pdf
 debug-*.png
 debug-*.jpg

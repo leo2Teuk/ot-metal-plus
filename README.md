@@ -1,74 +1,89 @@
-# OT Metal Plus — Quote Management System
+# O.T METAL PLUS — Application de gestion de devis
 
-## Overview
+## Présentation
 
-OT Metal Plus is a Django application for creating, managing and exporting commercial quotes for a metal trading business. The project is centered on a quotation workflow: the user fills in client information, adds product lines, applies a discount, and generates a PDF document ready to be sent to a customer.
+Application Django server-rendered pour saisir, calculer, enregistrer et produire des devis commerciaux au format PDF. L’interface regroupe les coordonnées du client, les lignes de produits, les conditions du devis et le récapitulatif financier.
 
-## Business context
+## Objectif métier
 
-The application was built to automate the quotation process in a practical way. Instead of composing documents manually in a spreadsheet or a text editor, the platform centralizes the information in a database and produces a professional quote document based on the same business rules every time.
+Le projet vise à remplacer la préparation manuelle répétitive des devis par un formulaire unique et des règles de calcul cohérentes. Les devis sont enregistrés localement et peuvent être consultés dans un historique.
 
-## Functional scope
+## Fonctionnalités
 
-- Quote creation with client metadata
-- Product line management and validation
-- Automatic subtotal, discount and VAT calculations
-- Quote total calculation with FCFA or percentage discount rules
-- PDF generation using a predefined template
-- Historical quote listing
-- Quote duplicate and delete operations
+- Création d’un devis avec numéro, date, ville et coordonnées client.
+- Saisie de jusqu’à 15 lignes de produits, avec quantité, prix unitaire et calcul des montants.
+- Calcul du sous-total, d’une remise en FCFA ou en pourcentage, de la TVA fixe de 19,25 % et du total.
+- Enregistrement du devis dans SQLite et génération du document PDF.
+- Consultation de l’historique, ouverture du PDF, duplication et suppression d’un devis.
+- Validation de dates au format formulaire ISO et au format localisé `jour/mois/année`.
+
+L’application ne comporte actuellement ni authentification utilisateur ni API REST.
 
 ## Technologies
 
-- Python 3
-- Django 5
-- SQLite
-- ReportLab
-- PyPDF
+- Python 3 et Django (`Django>=5.0,<6.0`)
+- SQLite et migrations Django
+- ReportLab pour le calque PDF et pypdf pour la lecture/fusion du modèle
+- Templates Django, CSS et JavaScript côté navigateur
 
-## Project structure
+## Architecture
 
 ```text
-E:\OT APP
-├── README.md
-├── requirements.txt
-├── manage.py
-├── .env.example
-├── .gitignore
-├── templates/
-│   └── Devis_OT_Metal_Plus_demo.pdf
-├── otmetal/
-│   ├── __init__.py
-│   ├── settings.py
-│   ├── urls.py
-│   ├── wsgi.py
-│   └── quotes/
-│       ├── __init__.py
-│       ├── admin.py
-│       ├── apps.py
-│       ├── forms.py
-│       ├── models.py
-│       ├── tests.py
-│       ├── urls.py
-│       ├── views.py
-│       ├── services/
-│       │   ├── calculations.py
-│       │   └── pdf_generator.py
-│       └── static/
-└── docs/
+manage.py                         Entrée des commandes Django
+otmetal/settings.py               Configuration, base et environnement
+otmetal/urls.py                   Routage racine et templates
+otmetal/quotes/                    Application métier des devis
+otmetal/quotes/models.py          Modèle Quote
+otmetal/quotes/forms.py           Validation des champs du devis
+otmetal/quotes/views.py           Création, historique et opérations sur devis
+otmetal/quotes/services/          Calculs et production PDF
+otmetal/quotes/migrations/        Historique de schéma conservé
+otmetal/quotes/templates/         Formulaire et historique HTML
+otmetal/quotes/static/            CSS et JavaScript de l’interface
+templates/                        Modèle PDF de démonstration
+docs/                              Documentation complémentaire
 ```
 
-## Configuration and environment
+Le modèle `Quote` conserve les informations de l’en-tête, les produits sérialisés en JSON et les montants calculés. La base de développement est SQLite ; elle n’est pas incluse dans Git.
 
-Secrets are loaded from environment variables instead of hardcoded values in source files.
+## Flux de génération PDF
 
-Create a local `.env` file from the example provided:
+```text
+Formulaire Django
+	→ validation des champs et lignes produits
+	→ calcul des montants et de la TVA
+	→ enregistrement SQLite (sauf aperçu)
+	→ superposition des données sur le modèle PDF de deux pages
+	→ réponse PDF dans le navigateur
+```
+
+Le générateur utilise `templates/Devis_OT_Metal_Plus_demo.pdf`. Le document commercial original n’est pas versionné.
+
+## Installation et lancement
+
+Prérequis : Python compatible avec Django 5 et `pip`.
 
 ```powershell
+git clone https://github.com/leo2Teuk/ot-metal-plus.git
+cd ot-metal-plus
+py -m venv .venv
+.\.venv\Scripts\Activate.ps1
+py -m pip install -r requirements.txt
 Copy-Item .env.example .env
 ```
 
-Example:
+Éditer ensuite `.env` et remplacer le placeholder de clé par une clé locale. Puis :
+
+```powershell
+py manage.py migrate
+py manage.py runserver
+```
+
+Ouvrir `http://127.0.0.1:8000/`. Le projet ne fournit pas de compte utilisateur : l’écran de création de devis est directement accessible en développement.
+
+## Configuration et sécurité
+
+Variables lues depuis `.env` ou l’environnement du processus :
 
 ```env
 DJANGO_SECRET_KEY=replace-with-local-secret
@@ -77,50 +92,25 @@ ALLOWED_HOSTS=127.0.0.1,localhost
 CSRF_TRUSTED_ORIGINS=
 ```
 
-## Installation
-
-```powershell
-cd "E:\OT APP"
-py -m pip install -r requirements.txt
-py manage.py migrate
-py manage.py runserver
-```
-
-Then open:
-
-```text
-http://127.0.0.1:8000/
-```
-
-## Database
-
-The project uses SQLite for local development. The migration history is kept in the Django migration system; it should be used to rebuild the schema in a clean environment.
-
-## PDF generation
-
-The PDF document is generated from the anonymized `templates/Devis_OT_Metal_Plus_demo.pdf` template and a payload composed of quote data, pricing values and client details. The original business document is excluded from this portfolio project and retained in the local backup. The document logic is implemented in the Quote service layer and assembled with ReportLab and PyPDF-based processing.
+Le placeholder est réservé au développement avec `DEBUG=True`. Avec `DEBUG=False`, une `DJANGO_SECRET_KEY` explicite est obligatoire. Configurer également `ALLOWED_HOSTS` et, si nécessaire, les origines CSRF pour l’environnement de déploiement. Ne jamais versionner `.env` ni `db.sqlite3`.
 
 ## Tests
 
 ```powershell
+py manage.py check
 py manage.py test
 ```
 
-## Security notes
+Les tests couvrent les calculs de remise/TVA, la limite de lignes et la soumission de devis.
 
-- Secret keys are not committed to the repository.
-- `DJANGO_SECRET_KEY` and `DEBUG` are loaded from the local `.env` file or process environment.
-- A development-only placeholder is used only when `DEBUG=True`; the app refuses to start with `DEBUG=False` and no configured key.
-- Set `DEBUG=False` and configure an explicit `ALLOWED_HOSTS` value outside local development.
-- Local generated PDF or debug artifacts are kept outside the tracked project state when preparing the portfolio.
+## Limitations
 
-## Future improvements
+- SQLite est prévu pour le développement local ; aucun déploiement de production n’est documenté.
+- La TVA est fixe dans le service de calcul.
+- Le rendu PDF dépend du modèle de démonstration fourni.
+- Les routes sont des vues Django HTML/PDF, pas une API REST.
+- Aucune licence n’a encore été choisie.
 
-- User authentication and authorization
-- PostgreSQL adoption for production-ready deployment
-- More robust client and quote lifecycle management
-- Export and API integrations for external systems
+## Auteur
 
-## License
-
-No license has been selected for this project.
+`leo2Teuk`

@@ -14,6 +14,15 @@ flutter pub get
 flutter run -d chrome --web-port 5000
 ```
 
+Pour démarrer Strapi sur le PC local :
+
+```powershell
+cd "E:\OT APP\strapi-cms"
+$env:HOST = "127.0.0.1"
+$env:PORT = "1350"
+npm run develop
+```
+
 The API base URL defaults to `http://127.0.0.1:1350/api`. Override it at build
 or run time with `--dart-define=STRAPI_API_URL=https://your-api.example/api`.
 

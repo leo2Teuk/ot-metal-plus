@@ -103,6 +103,21 @@ py manage.py test
 
 Les tests couvrent les calculs de remise/TVA, la limite de lignes et la soumission de devis.
 
+## Boutique en ligne TLveta
+
+Le dépôt contient également la boutique e-commerce Flutter Web et son API
+Strapi 5 dans [`flutter_ecommerce/`](./flutter_ecommerce/) et
+[`strapi-cms/`](./strapi-cms/). Le catalogue public affiche les tarifs, tandis
+que l’ouverture d’une fiche produit, le panier et les commandes nécessitent un
+compte client. Le paiement est une simulation locale de 10 secondes : aucune
+transaction Stripe réelle ni donnée de carte n’est utilisée.
+
+Les instructions pour démarrer les deux applications, accéder à
+l’administration Strapi, recréer les produits et tester les routes avec Postman
+sont détaillées dans le [guide de l’API Strapi](./strapi-cms/README.md). Le
+[README Flutter](./flutter_ecommerce/README.md) décrit le fonctionnement de la
+boutique.
+
 ## Limitations
 
 - SQLite est prévu pour le développement local ; aucun déploiement de production n’est documenté.
